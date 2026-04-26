@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛡️ Shield API Dashboard
 
-## Getting Started
+A high-performance, professional dashboard for managing and monitoring API Rate Limiting. Built with **Next.js 16**, **React 19**, and **Tailwind CSS 4**, this dashboard provides a sleek interface for developers to provision API keys and monitor real-time traffic.
 
-First, run the development server:
+![Dashboard Preview](https://via.placeholder.com/1200x600?text=Shield+API+Dashboard+Preview)
+
+## ✨ Features
+
+- **📊 Real-time Analytics**: Monitor total requests, blocked (429) events, and service success rates with interactive charts.
+- **🔑 API Key Management**: Create, edit, and revoke API keys with custom rate limits.
+- **📈 Usage Insights**: Visualize traffic patterns and identify top-performing endpoints.
+- **📜 Audit Logs**: Detailed history of API request events for security and debugging.
+- **🎨 Premium UI/UX**: Modern glassmorphism aesthetic with smooth Framer Motion animations and responsive design.
+- **🔐 Secure Auth**: Built-in authentication flow using JWT tokens.
+
+## 🚀 Tech Stack
+
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
+- **UI Library**: [React 19](https://react.dev/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **State Management**: [TanStack Query v5](https://tanstack.com/query/latest)
+- **Visualizations**: [Recharts](https://recharts.org/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Toasts**: [Sonner](https://sonner.steventey.com/)
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or higher
+- A running instance of the [Shield Rate Limit API](https://github.com/your-repo/rate-limit-api)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/aeam/ratelimit-dashboard.git
+   cd ratelimit-dashboard
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3000
+   ```
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+
+## 📖 How to use API Keys
+
+Once you generate a key in the dashboard, you can use it in your applications by including it in the HTTP headers:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+curl -X GET http://localhost:3000/api/your-endpoint \
+  -H "x-api-key: your_generated_key_here"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The API will respond with rate limit status headers:
+- `X-RateLimit-Limit`: Total requests allowed in the current window.
+- `X-RateLimit-Remaining`: Remaining requests available.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/src/app`: Application routes and layouts.
+- `/src/components`: Reusable UI components (Cards, Modals, Charts).
+- `/src/lib`: Core logic including API client and Auth Context.
+- `/public`: Static assets and icons.
 
-## Learn More
+## 📄 License
 
-To learn more about Next.js, take a look at the following resources:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ by [AEAM](https://github.com/aeam)
