@@ -13,6 +13,8 @@ import {
 import { motion } from 'framer-motion';
 import { cn, formatDate } from '@/lib/utils';
 import { api } from '@/lib/api';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface LogEntry {
   id: string;
@@ -43,6 +45,39 @@ export default function LogsPage() {
     log.status.toString().includes(search)
   ) || [];
 
+  const handleExport = () => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text('Shield Activity Logs', 14, 22);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`Total records: ${filteredLogs.length}`, 14, 35);
+
+    const tableColumn = ["Timestamp", "Endpoint", "Status", "API Key", "IP Address"];
+    const tableRows = filteredLogs.map(log => [
+      formatDate(log.createdAt),
+      log.endpoint || '/',
+      log.status.toString(),
+      log.apiKey.name,
+      log.ip || '0.0.0.0'
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+      theme: 'grid',
+      headStyles: { fillColor: [79, 70, 229], textColor: [255, 255, 255] },
+      styles: { fontSize: 8, cellPadding: 2 },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+    });
+
+    doc.save(`shield-logs-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -51,7 +86,11 @@ export default function LogsPage() {
           <p className="text-slate-400 mt-1">Real-time stream of requests passing through the Shield gateway.</p>
         </div>
         <div className="flex gap-3">
-          <button className="bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-slate-800 transition-all text-sm">
+          <button 
+            onClick={handleExport}
+            disabled={filteredLogs.length === 0}
+            className="bg-slate-900 border border-slate-800 text-slate-300 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-slate-800 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Download className="w-4 h-4" />
             Export
           </button>
