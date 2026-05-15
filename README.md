@@ -2,8 +2,6 @@
 
 A high-performance, professional dashboard for managing and monitoring API Rate Limiting. Built with **Next.js 16**, **React 19**, and **Tailwind CSS 4**, this dashboard provides a sleek interface for developers to provision API keys and monitor real-time traffic.
 
-![Dashboard Preview](https://via.placeholder.com/1200x600?text=Shield+API+Dashboard+Preview)
-
 ## ✨ Features
 
 - **📊 Real-time Analytics**: Monitor total requests, blocked (429) events, and service success rates with interactive charts.
@@ -77,10 +75,14 @@ The API will respond with rate limit status headers:
 - `/src/lib`: Core logic including API client and Auth Context.
 - `/public`: Static assets and icons.
 
+## 🎥 Video
+
+https://github.com/user-attachments/assets/8dc01ab5-c3e7-4cb1-b580-eb4405fff4f7
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-Built by [AEAM](https://github.com/aeam)
+Built by [AEAM88](https://github.com/aeam88)
