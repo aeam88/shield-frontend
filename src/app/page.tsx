@@ -94,7 +94,7 @@ export default function LandingPage() {
             <span className="text-gradient">Simplified</span>
           </h1>
 
-          <p className="text-xl text-dark-500 mb-10 max-w-2xl mx-auto">
+          <p className="text-xl text-white/60 mb-10 max-w-2xl mx-auto">
             Protect your APIs from abuse with intelligent rate limiting.
             Real-time analytics, easy configuration, and enterprise security.
           </p>
