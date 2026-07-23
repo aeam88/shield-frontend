@@ -5,21 +5,37 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
+import { registerSchema, type RegisterInput } from '@/lib/validations';
 
 export default function RegisterPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState<RegisterInput>({ name: '', email: '', password: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
 
+  const validate = () => {
+    const result = registerSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as string;
+        fieldErrors[field] = issue.message;
+      });
+      setErrors(fieldErrors);
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setIsLoading(true);
     setError('');
     try {
-      await register(name, email, password);
+      await register(form.name, form.email, form.password);
     } catch (err) {
       setError((err as Error).message || 'Error creating account');
     } finally {
@@ -54,13 +70,15 @@ export default function RegisterPage() {
             <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
             <input
               type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Enter Your Name"
-              className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-dark-500 focus:outline-none focus:border-primary/50 transition-colors"
+              className={`w-full bg-dark-900 border rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-dark-500 focus:outline-none transition-colors ${
+                errors.name ? 'border-red-500 focus:border-red-500' : 'border-dark-700 focus:border-primary/50'
+              }`}
             />
           </div>
+          {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
         </div>
 
         <div>
@@ -68,13 +86,15 @@ export default function RegisterPage() {
             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
             <input
               type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               placeholder="Enter Your Email"
-              className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-dark-500 focus:outline-none focus:border-primary/50 transition-colors"
+              className={`w-full bg-dark-900 border rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-dark-500 focus:outline-none transition-colors ${
+                errors.email ? 'border-red-500 focus:border-red-500' : 'border-dark-700 focus:border-primary/50'
+              }`}
             />
           </div>
+          {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
         </div>
 
         <div>
@@ -82,13 +102,15 @@ export default function RegisterPage() {
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
             <input
               type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               placeholder="Password"
-              className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-dark-500 focus:outline-none focus:border-primary/50 transition-colors"
+              className={`w-full bg-dark-900 border rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-dark-500 focus:outline-none transition-colors ${
+                errors.password ? 'border-red-500 focus:border-red-500' : 'border-dark-700 focus:border-primary/50'
+              }`}
             />
           </div>
+          {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password}</p>}
         </div>
 
         {error && (
