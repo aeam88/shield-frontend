@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
+import { useRateLimit } from '@/lib/useRateLimit';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -25,6 +26,11 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const { limit, remaining, retryAfter } = useRateLimit();
+
+  const rateLimitPercentage = limit && remaining !== null
+    ? Math.round((remaining / limit) * 100)
+    : null;
 
   return (
     <aside className="w-64 border-r border-dark-800 bg-dark-950/50 backdrop-blur-xl flex flex-col h-screen sticky top-0">
@@ -57,6 +63,33 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {rateLimitPercentage !== null && (
+          <>
+            <div className="border-t border-dark-700 my-3" />
+            <div className="px-1 py-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-dark-500">Rate Limit</span>
+                <span className="text-xs font-mono text-dark-400">{remaining}/{limit}</span>
+              </div>
+              <div className="h-1.5 w-full bg-dark-700 rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    rateLimitPercentage > 50 ? "bg-primary" :
+                    rateLimitPercentage > 20 ? "bg-yellow-500" : "bg-red-500"
+                  )}
+                  style={{ width: `${rateLimitPercentage}%` }}
+                />
+              </div>
+              {retryAfter && (
+                <p className="text-[10px] text-yellow-500 mt-1">
+                  Retry in {retryAfter}s
+                </p>
+              )}
+            </div>
+          </>
+        )}
       </nav>
 
       <div className="p-4 border-t border-dark-800">
