@@ -22,8 +22,8 @@ interface UsageChartProps {
 export function UsageChart({ data }: UsageChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="h-[350px] w-full flex items-center justify-center border border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
-        <p className="text-slate-500 text-sm">No data available for the selected period.</p>
+      <div className="h-[350px] w-full flex items-center justify-center border border-dashed border-dark-700 rounded-2xl bg-dark-900/20">
+        <p className="text-dark-500 text-sm">No data available for the selected period.</p>
       </div>
     );
   }
@@ -34,40 +34,40 @@ export function UsageChart({ data }: UsageChartProps) {
         <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#a3e635" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#a3e635" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="colorBlocked" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
               <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#222222" />
           <XAxis 
             dataKey="name" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#64748b', fontSize: 12 }}
+            tick={{ fill: '#333333', fontSize: 12 }}
             dy={10}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#64748b', fontSize: 12 }}
+            tick={{ fill: '#333333', fontSize: 12 }}
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: '#0f172a', 
-              borderColor: '#1e293b',
-              borderRadius: '12px',
-              color: '#f8fafc'
+              backgroundColor: '#0a0a0a', 
+              borderColor: '#222222',
+              borderRadius: '8px',
+              color: '#ffffff'
             }}
-            itemStyle={{ color: '#f8fafc' }}
+            itemStyle={{ color: '#ffffff' }}
           />
           <Area 
             type="monotone" 
             dataKey="total" 
-            stroke="#6366f1" 
+            stroke="#a3e635" 
             strokeWidth={3}
             fillOpacity={1} 
             fill="url(#colorTotal)" 
