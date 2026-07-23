@@ -22,7 +22,7 @@ export function StatsCard({ label, value, description, icon: Icon, trend, classN
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn("glass-card p-6 rounded-3xl", className)}
+      className={cn("glass-card p-6 rounded-2xl", className)}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="p-3 bg-primary/10 rounded-2xl">

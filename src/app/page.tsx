@@ -64,7 +64,7 @@ export default function LandingPage() {
         >
           <Link
             href="/login"
-            className="group px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl border border-white/10 transition-all flex items-center gap-2"
+            className="group px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg border border-white/10 transition-colors flex items-center gap-2"
           >
             Sign In
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -123,7 +123,7 @@ export default function LandingPage() {
             <motion.div
               key={index}
               variants={item}
-              className="group p-8 rounded-3xl bg-dark-900/40 backdrop-blur-xl border border-dark-700/50 hover:border-primary/30 transition-all hover:-translate-y-1"
+              className="group p-8 rounded-2xl bg-dark-900/40 backdrop-blur-xl border border-dark-700/50 hover:border-primary/30 transition-colors hover:-translate-y-1"
             >
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <feature.icon className="w-6 h-6 text-primary" />
