@@ -75,11 +75,11 @@ export default function AnalyticsPage() {
           <p className="text-dark-500 mt-1">Deep dive into your API traffic and consumption patterns.</p>
         </div>
         <div className="flex gap-3">
-          <button className="bg-dark-900 border border-dark-700 text-dark-400 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-dark-800 transition-all text-sm">
+          <button className="bg-dark-900 border border-dark-700 text-dark-400 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-dark-800 transition-colors text-sm">
             <Calendar className="w-4 h-4" />
             Last 7 Days
           </button>
-          <button className="bg-primary hover:bg-primary-hover text-dark-950 px-4 py-2 rounded-xl flex items-center gap-2 transition-all text-sm font-medium">
+          <button className="bg-primary hover:bg-primary-hover text-dark-950 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-medium">
             <Download className="w-4 h-4" />
             Export CSV
           </button>
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 glass-card p-8 rounded-3xl"
+          className="lg:col-span-2 glass-card p-8 rounded-2xl"
         >
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold text-white">Traffic Volume</h2>
@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass-card p-8 rounded-3xl"
+          className="glass-card p-8 rounded-2xl"
         >
           <h2 className="text-xl font-bold text-white mb-8">Request Distribution</h2>
           <div className="h-[250px] w-full">
@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="glass-card p-8 rounded-3xl"
+        className="glass-card p-8 rounded-2xl"
       >
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-xl font-bold text-white">Endpoints Usage</h2>

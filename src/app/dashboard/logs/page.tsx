@@ -88,7 +88,7 @@ export default function LogsPage() {
           <button 
             onClick={handleExport}
             disabled={filteredLogs.length === 0}
-            className="bg-dark-900 border border-dark-700 text-dark-400 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-dark-800 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-dark-900 border border-dark-700 text-dark-400 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-dark-800 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="w-4 h-4" />
             Export
@@ -96,7 +96,7 @@ export default function LogsPage() {
         </div>
       </div>
 
-      <div className="glass-card rounded-3xl overflow-hidden">
+      <div className="glass-card rounded-2xl overflow-hidden">
         <div className="p-6 border-b border-dark-700 flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />

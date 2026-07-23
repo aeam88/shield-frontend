@@ -83,7 +83,7 @@ export default function DashboardPage() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary-hover text-dark-950 px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium"
+          className="bg-primary hover:bg-primary-hover text-dark-950 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors font-medium"
         >
           <Plus className="w-4 h-4" />
           New API Key
@@ -128,7 +128,7 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-2 glass-card p-8 rounded-3xl"
+          className="lg:col-span-2 glass-card p-8 rounded-2xl"
         >
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold text-white">Usage Analytics</h2>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="glass-card p-8 rounded-3xl"
+          className="glass-card p-8 rounded-2xl"
         >
           <h2 className="text-xl font-bold text-white mb-6">Top Endpoints</h2>
           <div className="space-y-6">
