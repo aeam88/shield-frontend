@@ -77,21 +77,21 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-dark-950/80 backdrop-blur-sm"
       />
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-lg glass-card rounded-3xl overflow-hidden shadow-2xl border-white/10"
+        className="relative w-full max-w-lg glass-card rounded-2xl overflow-hidden shadow-2xl"
       >
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+        <div className="p-6 border-b border-dark-700 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Key className="w-5 h-5 text-indigo-400" />
+            <Key className="w-5 h-5 text-primary" />
             Generate API Key
           </h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-dark-500 hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -108,44 +108,44 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
                 className="space-y-6"
               >
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-400">Key Name</label>
+                  <label className="text-sm font-medium text-dark-500">Key Name</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                    className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
                     placeholder="e.g. Production Mobile App"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-400">Request Limit</label>
+                    <label className="text-sm font-medium text-dark-500">Request Limit</label>
                     <input
                       type="number"
                       required
                       min="1"
                       value={limit}
                       onChange={(e) => setLimit(parseInt(e.target.value))}
-                      className="w-full bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                      className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-400">Window (seconds)</label>
+                    <label className="text-sm font-medium text-dark-500">Window (seconds)</label>
                     <input
                       type="number"
                       required
                       min="1"
                       value={windowSec}
                       onChange={(e) => setWindowSec(parseInt(e.target.value))}
-                      className="w-full bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                      className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
                 </div>
 
                 {mutation.isError && (
-                  <div className="bg-red-500/10 border border-red-500/50 text-red-400 text-sm p-4 rounded-xl flex items-center gap-3">
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4 rounded-lg flex items-center gap-3">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     {(mutation.error as Error).message}
                   </div>
@@ -154,7 +154,7 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
                 <button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                  className="w-full bg-primary hover:bg-primary-hover text-dark-950 font-semibold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                 >
                   {mutation.isPending ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -175,30 +175,30 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white">API Key Generated!</h3>
-                  <p className="text-slate-400 mt-2 text-sm">
+                  <p className="text-dark-500 mt-2 text-sm">
                     Please copy this key now. For security reasons, it will not be shown again.
                   </p>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex items-center justify-between gap-4">
-                  <code className="text-indigo-400 font-mono text-sm break-all text-left">
+                <div className="bg-dark-900 border border-dark-700 p-4 rounded-xl flex items-center justify-between gap-4">
+                  <code className="text-primary font-mono text-sm break-all text-left">
                     {createdKey}
                   </code>
                   <button 
                     onClick={handleCopy}
-                    className="p-2 bg-slate-900 rounded-lg hover:text-white transition-colors flex-shrink-0"
+                    className="p-2 bg-dark-800 rounded-lg hover:text-white transition-colors flex-shrink-0"
                   >
                     {isCopied ? (
                       <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     ) : (
-                      <Copy className="w-5 h-5 text-slate-500" />
+                      <Copy className="w-5 h-5 text-dark-500" />
                     )}
                   </button>
                 </div>
 
                 <button
                   onClick={handleFinish}
-                  className="w-full bg-slate-100 hover:bg-white text-slate-950 font-bold py-4 rounded-xl transition-all"
+                  className="w-full bg-white hover:bg-dark-100 text-dark-950 font-bold py-4 rounded-lg transition-colors"
                 >
                   I&apos;ve saved the key
                 </button>

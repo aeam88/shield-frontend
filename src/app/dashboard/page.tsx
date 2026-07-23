@@ -63,7 +63,7 @@ export default function DashboardPage() {
   if (isLoading && !stats) {
     return (
       <div className="h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -79,11 +79,11 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">System Overview</h1>
-          <p className="text-slate-400 mt-1">Real-time performance metrics across all API keys.</p>
+          <p className="text-dark-500 mt-1">Real-time performance metrics across all API keys.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/20 font-medium"
+          className="bg-primary hover:bg-primary-hover text-dark-950 px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium"
         >
           <Plus className="w-4 h-4" />
           New API Key
@@ -134,12 +134,12 @@ export default function DashboardPage() {
             <h2 className="text-xl font-bold text-white">Usage Analytics</h2>
             <div className="flex items-center gap-4 text-xs font-medium">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-indigo-500 rounded-full" />
-                <span className="text-slate-400">Total</span>
+                <div className="w-3 h-3 bg-primary rounded-full" />
+                <span className="text-dark-500">Total</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full" />
-                <span className="text-slate-400">Blocked</span>
+                <span className="text-dark-500">Blocked</span>
               </div>
             </div>
           </div>
@@ -159,12 +159,12 @@ export default function DashboardPage() {
                 return (
                   <div key={endpoint.endpoint} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-mono text-slate-300 truncate max-w-[150px]">{endpoint.endpoint}</span>
-                      <span className="text-slate-500">{endpoint.count.toLocaleString()} reqs</span>
+                      <span className="font-mono text-dark-400 truncate max-w-[150px]">{endpoint.endpoint}</span>
+                      <span className="text-dark-500">{endpoint.count.toLocaleString()} reqs</span>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-dark-700 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-500 rounded-full"
+                        className="h-full bg-primary rounded-full"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -172,12 +172,12 @@ export default function DashboardPage() {
                 );
               })
             ) : (
-              <p className="text-sm text-slate-500 py-4 text-center">No endpoint data available yet.</p>
+              <p className="text-sm text-dark-500 py-4 text-center">No endpoint data available yet.</p>
             )}
           </div>
           <Link
             href="/dashboard/analytics"
-            className="mt-8 flex items-center justify-center gap-2 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors group"
+            className="mt-8 flex items-center justify-center gap-2 text-sm font-medium text-primary hover:text-primary-hover transition-colors group"
           >
             View all analytics
             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />

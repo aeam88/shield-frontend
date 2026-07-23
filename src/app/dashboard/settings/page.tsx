@@ -86,36 +86,40 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="min-h-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-white tracking-tight">Settings</h1>
-        <p className="text-slate-400 mt-1">Configure your account and dashboard preferences.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h1>
+        <p className="text-dark-500 mt-1 text-sm sm:text-base">Configure your account and dashboard preferences.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="space-y-2">
           {settingsSections.map((section) => (
             <button 
               key={section.id}
               onClick={() => setActiveSection(section.id)}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all hover:bg-slate-900 group border border-transparent hover:border-slate-800 text-left ${
-                activeSection === section.id ? 'bg-slate-900 border-slate-800' : ''
+              className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all text-left ${
+                activeSection === section.id 
+                  ? 'bg-dark-900 border border-dark-700' 
+                  : 'hover:bg-dark-900/50 border border-transparent'
               }`}
             >
-              <div className="p-2 bg-slate-900 rounded-xl group-hover:bg-indigo-600/10 transition-colors">
+              <div className={`p-2 rounded-lg transition-colors ${
+                activeSection === section.id ? 'bg-primary/10' : 'bg-dark-900'
+              }`}>
                 <section.icon className={`w-5 h-5 transition-colors ${
-                  activeSection === section.id ? 'text-indigo-400' : 'text-slate-400 group-hover:text-indigo-400'
+                  activeSection === section.id ? 'text-primary' : 'text-dark-500'
                 }`} />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">{section.label}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{section.description}</p>
+                <p className="text-sm font-medium">{section.label}</p>
+                <p className="text-xs text-dark-500">{section.description}</p>
               </div>
             </button>
           ))}
@@ -124,59 +128,59 @@ export default function SettingsPage() {
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-2 glass-card p-8 rounded-3xl"
+          className="lg:col-span-2 glass-card p-6 rounded-2xl"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <h2 className="text-xl font-bold text-white">General Profile</h2>
+            <h2 className="text-lg font-bold">General Profile</h2>
             
             {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-400 text-sm p-3 rounded-xl">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 text-sm p-3 rounded-xl">
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm px-4 py-3 rounded-lg">
                 {success}
               </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Full Name</label>
+              <div>
+                <label className="text-sm text-dark-500 mb-1.5 block">Full Name</label>
                 <input 
                   type="text" 
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Email Address</label>
+              <div>
+                <label className="text-sm text-dark-500 mb-1.5 block">Email Address</label>
                 <input 
                   type="email" 
                   value={formData.email}
                   disabled
-                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-400 cursor-not-allowed"
+                  className="w-full bg-dark-900/50 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-dark-500 cursor-not-allowed"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">Organization Name</label>
+            <div>
+              <label className="text-sm text-dark-500 mb-1.5 block">Organization Name</label>
               <input 
                 type="text" 
                 value={formData.organization}
                 onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
               />
             </div>
 
-            <div className="pt-6 border-t border-slate-800 flex justify-end">
+            <div className="pt-4 border-t border-dark-700 flex justify-end">
               <button 
                 type="submit"
                 disabled={saving}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/20 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary hover:bg-primary-hover text-dark-950 px-6 py-2.5 rounded-lg flex items-center gap-2 transition-colors font-medium text-sm disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
