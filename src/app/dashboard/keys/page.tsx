@@ -18,6 +18,7 @@ import { api } from '@/lib/api';
 import { cn, formatDate } from '@/lib/utils';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { EditApiKeyModal } from '@/components/EditApiKeyModal';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { toast } from 'sonner';
 
 interface ApiKey {
@@ -35,6 +36,7 @@ export default function ApiKeysPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKey, setEditingKey] = useState<ApiKey | null>(null);
+  const [deletingKey, setDeletingKey] = useState<ApiKey | null>(null);
   const queryClient = useQueryClient();
 
   const { data: keys, isLoading } = useQuery<ApiKey[]>({
@@ -47,6 +49,7 @@ export default function ApiKeysPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['api-keys'] });
       toast.success('API Key revoked successfully');
+      setDeletingKey(null);
     },
     onError: () => {
       toast.error('Failed to revoke API key');
@@ -60,9 +63,9 @@ export default function ApiKeysPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleRevoke = (id: string) => {
-    if (confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
-      revokeMutation.mutate(id);
+  const handleRevoke = () => {
+    if (deletingKey) {
+      revokeMutation.mutate(deletingKey.id);
     }
   };
 
@@ -98,6 +101,17 @@ export default function ApiKeysPage() {
         isOpen={!!editingKey}
         onClose={() => setEditingKey(null)}
         apiKey={editingKey}
+      />
+
+      <ConfirmModal
+        isOpen={!!deletingKey}
+        title="Revoke API Key"
+        message={`Are you sure you want to revoke "${deletingKey?.name}"? This action cannot be undone.`}
+        confirmText="Revoke"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleRevoke}
+        onCancel={() => setDeletingKey(null)}
       />
 
       <div className="glass-card rounded-2xl overflow-hidden">
@@ -186,14 +200,14 @@ export default function ApiKeysPage() {
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                       <button
                         onClick={() => setEditingKey(key)}
-                        className="text-dark-500 hover:text-primary p-2 rounded-lg hover:bg-primary/10 transition-all"
+                        className="text-dark-500 hover:text-primary p-2 rounded-lg hover:bg-primary/10 transition-colors"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleRevoke(key.id)}
+                        onClick={() => setDeletingKey(key)}
                         disabled={revokeMutation.isPending}
-                        className="text-dark-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-all disabled:opacity-50"
+                        className="text-dark-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors disabled:opacity-50"
                       >
                         {revokeMutation.isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
