@@ -161,16 +161,22 @@ export default function ApiKeysPage() {
                         <code className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded">
                           {key.prefix}••••••••
                         </code>
-                        <button
-                          onClick={() => handleCopy(key.id, `${key.prefix}••••••••`)}
-                          className="text-dark-500 hover:text-white transition-colors"
-                        >
-                          {copiedId === key.id ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
+                        <div className="relative group/tooltip">
+                          <button
+                            onClick={() => handleCopy(key.id, `${key.prefix}••••••••`)}
+                            className="text-dark-500 hover:text-white transition-colors"
+                          >
+                            {copiedId === key.id ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 w-48 px-3 py-2 bg-dark-800 border border-dark-700 rounded-lg text-xs text-dark-400 opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all z-10 pointer-events-none">
+                            <p className="font-medium text-white mb-1">Copy key prefix</p>
+                            <p>Use in header: <code className="text-primary">Authorization: Bearer YOUR_KEY</code></p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
