@@ -77,7 +77,8 @@ The API will respond with rate limit status headers:
 
 ## 🎥 Video
 
-https://github.com/user-attachments/assets/8dc01ab5-c3e7-4cb1-b580-eb4405fff4f7
+https://github.com/user-attachments/assets/ba54b895-0253-4eeb-900d-2d93a8875764
+
 
 ## 📄 License
 
