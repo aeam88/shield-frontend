@@ -10,7 +10,8 @@ import {
   CheckCircle2, 
   Loader2, 
   AlertCircle,
-  Key
+  Key,
+  Clock
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
@@ -30,12 +31,13 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
   const [name, setName] = useState('');
   const [limit, setLimit] = useState(100);
   const [windowSec, setWindowSec] = useState(60);
+  const [expiresInDays, setExpiresInDays] = useState<number | ''>('');
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (data: { name: string; limit: number; windowSec: number }) => 
+    mutationFn: (data: { name: string; limit: number; windowSec: number; expiresInDays?: number }) => 
       api.post<ApiKeyResponse>('/api-keys', data),
     onSuccess: (response) => {
       setCreatedKey(response.key || response.value || 'rl_live_mock_key_123456789');
@@ -50,7 +52,11 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ name, limit, windowSec });
+    const data: { name: string; limit: number; windowSec: number; expiresInDays?: number } = { name, limit, windowSec };
+    if (expiresInDays !== '') {
+      data.expiresInDays = expiresInDays;
+    }
+    mutation.mutate(data);
   };
 
   const handleCopy = () => {
@@ -65,6 +71,7 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
     onSuccess();
     setCreatedKey(null);
     setName('');
+    setExpiresInDays('');
     onClose();
   };
 
@@ -142,6 +149,22 @@ export function ApiKeyModal({ isOpen, onClose, onSuccess }: ApiKeyModalProps) {
                       className="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-dark-500">Expiration (optional)</label>
+                  <div className="relative">
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+                    <input
+                      type="number"
+                      min="1"
+                      value={expiresInDays}
+                      onChange={(e) => setExpiresInDays(e.target.value ? parseInt(e.target.value) : '')}
+                      className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      placeholder="Never (leave empty)"
+                    />
+                  </div>
+                  <p className="text-xs text-dark-500">Days until key expires. Leave empty for no expiration.</p>
                 </div>
 
                 {mutation.isError && (
