@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   Search,
-  Filter,
   Download,
   CheckCircle2,
   XCircle,
-  ExternalLink
+  ExternalLink,
+  Calendar,
+  Loader2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn, formatDate } from '@/lib/utils';
@@ -28,22 +29,54 @@ interface LogEntry {
   };
 }
 
-const fetcher = <T,>(url: string) => api.get<T>(url);
+interface LogsResponse {
+  data: LogEntry[];
+  nextCursor: string | null;
+  meta: {
+    total: number;
+    hasMore: boolean;
+    limit: number;
+  };
+}
 
 export default function LogsPage() {
   const [search, setSearch] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [allLogs, setAllLogs] = useState<LogEntry[]>([]);
 
-  const { data: logs, isLoading } = useQuery<LogEntry[]>({
-    queryKey: ['analytics', 'logs'],
-    queryFn: () => fetcher<LogEntry[]>('/analytics/logs?limit=50'),
-    refetchInterval: 10000,
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ['analytics', 'logs', dateFrom, dateTo],
+    queryFn: async ({ pageParam }) => {
+      const params = new URLSearchParams({ limit: '20' });
+      if (pageParam) params.set('cursor', pageParam);
+      if (dateFrom) params.set('from', dateFrom);
+      if (dateTo) params.set('to', dateTo);
+      return api.get<LogsResponse>(`/analytics/logs?${params.toString()}`);
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 
-  const filteredLogs = logs?.filter(log =>
+  React.useEffect(() => {
+    if (data) {
+      const logs = data.pages.flatMap((page) => page.data);
+      setAllLogs(logs);
+    }
+  }, [data]);
+
+  const handleDateFilter = () => {
+    setAllLogs([]);
+  };
+
+  const filteredLogs = allLogs.filter(log =>
     log.endpoint?.toLowerCase().includes(search.toLowerCase()) ||
     log.apiKey?.name.toLowerCase().includes(search.toLowerCase()) ||
     log.status.toString().includes(search)
-  ) || [];
+  );
+
+  const total = data?.pages[0]?.meta.total ?? 0;
+  const hasMore = data?.pages[data.pages.length - 1]?.meta.hasMore ?? false;
 
   const handleExport = () => {
     const doc = new jsPDF();
@@ -108,11 +141,42 @@ export default function LogsPage() {
               className="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder:text-dark-500 focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
-          <div className="flex gap-2">
-            <button className="bg-dark-900 border border-dark-700 text-dark-400 px-3 py-2 rounded-lg flex items-center gap-2 hover:text-white transition-all text-sm">
-              <Filter className="w-4 h-4" />
-              Filter
+          <div className="flex gap-2 items-center">
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <span className="text-dark-500 text-sm">to</span>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <button
+              onClick={handleDateFilter}
+              className="bg-primary hover:bg-primary-hover text-dark-950 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Apply
             </button>
+            {(dateFrom || dateTo) && (
+              <button
+                onClick={() => { setDateFrom(''); setDateTo(''); }}
+                className="text-dark-500 hover:text-white px-2 py-2 text-sm transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
             <div className="bg-dark-900 border border-dark-700 text-primary px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -197,11 +261,25 @@ export default function LogsPage() {
 
         {!isLoading && filteredLogs.length > 0 && (
           <div className="p-6 border-t border-dark-700 flex items-center justify-between">
-            <p className="text-sm text-dark-500">Showing {filteredLogs.length} of recent requests</p>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 bg-dark-900 border border-dark-700 rounded-lg text-sm text-dark-400 hover:text-white transition-all">Older</button>
-              <button className="px-3 py-1 bg-dark-900 border border-dark-700 rounded-lg text-sm text-dark-400 hover:text-white transition-all">Newer</button>
-            </div>
+            <p className="text-sm text-dark-500">
+              Showing {filteredLogs.length} of {total} requests
+            </p>
+            {hasMore && (
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="px-4 py-2 bg-dark-900 border border-dark-700 rounded-lg text-sm text-dark-400 hover:text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load More'
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { UsageChart } from '@/components/UsageChart';
 import { 
@@ -16,7 +16,7 @@ import {
   Pie
 } from 'recharts';
 import { motion } from 'framer-motion';
-import { Calendar, Filter, Download, Loader2 } from 'lucide-react';
+import { Calendar, Download, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface StatusBreakdown {
@@ -40,12 +40,21 @@ interface DashboardStats {
   usageHistory: UsageLog[];
 }
 
-const fetcher = <T,>(url: string) => api.get<T>(url);
-
 export default function AnalyticsPage() {
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const buildUrl = (base: string) => {
+    const params = new URLSearchParams();
+    if (dateFrom) params.set('from', dateFrom);
+    if (dateTo) params.set('to', dateTo);
+    const qs = params.toString();
+    return qs ? `${base}?${qs}` : base;
+  };
+
   const { data: stats, isLoading } = useQuery<DashboardStats>({
-    queryKey: ['analytics', 'summary'],
-    queryFn: () => fetcher<DashboardStats>('/analytics/summary'),
+    queryKey: ['analytics', 'summary', dateFrom, dateTo],
+    queryFn: () => api.get<DashboardStats>(buildUrl('/analytics/summary')),
     refetchInterval: 60000,
   });
 
@@ -74,11 +83,34 @@ export default function AnalyticsPage() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Analytics Insights</h1>
           <p className="text-dark-500 mt-1">Deep dive into your API traffic and consumption patterns.</p>
         </div>
-        <div className="flex gap-3">
-          <button className="bg-dark-900 border border-dark-700 text-dark-400 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-dark-800 transition-colors text-sm">
-            <Calendar className="w-4 h-4" />
-            Last 7 Days
-          </button>
+        <div className="flex gap-3 items-center">
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+            />
+          </div>
+          <span className="text-dark-500 text-sm">to</span>
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+            />
+          </div>
+          {(dateFrom || dateTo) && (
+            <button
+              onClick={() => { setDateFrom(''); setDateTo(''); }}
+              className="text-dark-500 hover:text-white px-2 py-2 text-sm transition-colors"
+            >
+              Clear
+            </button>
+          )}
           <button className="bg-primary hover:bg-primary-hover text-dark-950 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-medium">
             <Download className="w-4 h-4" />
             Export CSV
@@ -158,9 +190,6 @@ export default function AnalyticsPage() {
       >
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-xl font-bold text-white">Endpoints Usage</h2>
-          <button className="text-dark-500 hover:text-white transition-colors">
-            <Filter className="w-4 h-4" />
-          </button>
         </div>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
