@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, setToken, clearToken, getToken } from './api';
+import { api, setTokens, clearTokens, getAccessToken } from './api';
 
 interface User {
   id: string;
@@ -15,7 +15,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,12 +27,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = getToken();
+      const token = getAccessToken();
       if (token) {
         try {
-          setUser({ id: '1', email: 'user@example.com', name: 'User' } as User);
+          const userData = await api.get<User>('/auth/profile');
+          setUser(userData);
         } catch {
-          clearToken();
+          clearTokens();
         }
       }
       setLoading(false);
@@ -42,8 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await api.post<{ access_token: string, user: User }>('/auth/login', { email, password });
-    setToken(response.access_token);
+    const response = await api.post<{ access_token: string; refresh_token: string; user: User }>(
+      '/auth/login',
+      { email, password }
+    );
+    setTokens(response.access_token, response.refresh_token);
     setUser(response.user);
     router.push('/dashboard');
   };
@@ -53,8 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await login(email, password);
   };
 
-  const logout = () => {
-    clearToken();
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout', {});
+    } catch {
+      // Continue with local logout even if backend fails
+    }
+    clearTokens();
     setUser(null);
     router.push('/login');
   };
