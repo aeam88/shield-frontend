@@ -26,11 +26,13 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
-  const { limit, remaining, retryAfter } = useRateLimit();
+  const { limit, remaining, reset } = useRateLimit();
 
   const rateLimitPercentage = limit && remaining !== null
     ? Math.round((remaining / limit) * 100)
     : null;
+
+  const retryAfter = reset ? Math.max(0, Math.ceil((reset * 1000 - Date.now()) / 1000)) : null;
 
   return (
     <aside className="w-64 border-r border-dark-800 bg-dark-950/50 backdrop-blur-xl flex flex-col h-screen sticky top-0">

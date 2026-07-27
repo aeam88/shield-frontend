@@ -29,6 +29,7 @@ interface ApiKey {
   window: number;
   isActive: boolean;
   createdAt: string;
+  expiresAt: string | null;
 }
 
 export default function ApiKeysPage() {
@@ -135,7 +136,7 @@ export default function ApiKeysPage() {
                 <th className="px-6 py-4 text-xs font-semibold text-dark-500 uppercase tracking-wider">Key Details</th>
                 <th className="px-6 py-4 text-xs font-semibold text-dark-500 uppercase tracking-wider">Limits</th>
                 <th className="px-6 py-4 text-xs font-semibold text-dark-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-dark-500 uppercase tracking-wider">Created</th>
+                <th className="px-6 py-4 text-xs font-semibold text-dark-500 uppercase tracking-wider">Expires</th>
                 <th className="px-6 py-4 text-xs font-semibold text-dark-500 uppercase tracking-wider"></th>
               </tr>
             </thead>
@@ -200,7 +201,15 @@ export default function ApiKeysPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-dark-500">
-                    {formatDate(key.createdAt)}
+                    {key.expiresAt ? (
+                      <span className={cn(
+                        new Date(key.expiresAt) < new Date() ? 'text-red-400' : ''
+                      )}>
+                        {formatDate(key.expiresAt)}
+                      </span>
+                    ) : (
+                      <span className="text-dark-500">Never</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
