@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, setTokens, clearTokens, getAccessToken } from './api';
+import { api, setTokens, clearTokens, getAccessToken, getOAuthUrl, type OAuthProvider } from './api';
 
 interface User {
   id: string;
@@ -16,6 +16,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithProvider: (provider: OAuthProvider) => void;
+  exchangeOAuthCode: (code: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,6 +59,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await login(email, password);
   };
 
+  const loginWithProvider = (provider: OAuthProvider) => {
+    window.location.href = getOAuthUrl(provider);
+  };
+
+  const exchangeOAuthCode = async (code: string) => {
+    const response = await api.post<{ access_token: string; refresh_token: string; user: User }>(
+      '/auth/oauth/exchange',
+      { code }
+    );
+    setTokens(response.access_token, response.refresh_token);
+    setUser(response.user);
+    router.push('/dashboard');
+  };
+
   const logout = async () => {
     try {
       await api.post('/auth/logout', {});
@@ -69,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, loginWithProvider, exchangeOAuthCode }}>
       {children}
     </AuthContext.Provider>
   );
