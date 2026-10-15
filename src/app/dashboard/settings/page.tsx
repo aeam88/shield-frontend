@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   User, 
   Bell, 
@@ -14,13 +14,6 @@ import {
 import { motion } from 'framer-motion';
 import { api } from '@/lib/api';
 import { profileSchema, passwordSchema, type ProfileInput, type PasswordInput } from '@/lib/validations';
-
-interface Profile {
-  id: string;
-  email: string;
-  name: string;
-  organization?: string;
-}
 
 const settingsSections = [
   { id: 'profile', label: 'Profile Settings', icon: User, description: 'Manage your public profile and email address.' },
@@ -66,45 +59,49 @@ export default function SettingsPage() {
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    loadSettings();
-  }, []);
-
-  useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 3000);
       return () => clearTimeout(timer);
     }
   }, [toast]);
 
-  const loadSettings = async () => {
-    setLoading(true);
-    try {
-      try {
-        const profileData = await api.get<{ name: string; email: string; organization: string }>('/auth/profile');
-        setProfileForm({ name: profileData.name || '', organization: profileData.organization || '' });
-        setProfileEmail(profileData.email || '');
-      } catch {}
+  useEffect(() => {
+    let active = true;
 
+    void (async () => {
       try {
-        const notifData = await api.get<typeof notifications>('/user/notifications');
-        setNotifications(notifData);
-      } catch {}
+        try {
+          const profileData = await api.get<{ name: string; email: string; organization: string }>('/auth/profile');
+          if (!active) return;
+          setProfileForm({ name: profileData.name || '', organization: profileData.organization || '' });
+          setProfileEmail(profileData.email || '');
+        } catch {}
 
-      try {
-        const networkData = await api.get<typeof networkForm>('/user/network');
-        setNetworkForm(networkData);
-      } catch {}
+        try {
+          const notifData = await api.get<typeof notifications>('/user/notifications');
+          if (active) setNotifications(notifData);
+        } catch {}
 
-      try {
-        const billingData = await api.get<typeof billing>('/user/billing');
-        setBilling(billingData);
-      } catch {}
-    } catch {
-      setToast({ type: 'error', message: 'Failed to load settings' });
-    } finally {
-      setLoading(false);
-    }
-  };
+        try {
+          const networkData = await api.get<typeof networkForm>('/user/network');
+          if (active) setNetworkForm(networkData);
+        } catch {}
+
+        try {
+          const billingData = await api.get<typeof billing>('/user/billing');
+          if (active) setBilling(billingData);
+        } catch {}
+      } catch {
+        if (active) setToast({ type: 'error', message: 'Failed to load settings' });
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

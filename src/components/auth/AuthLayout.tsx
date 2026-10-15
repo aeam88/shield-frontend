@@ -13,8 +13,6 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ 
   children, 
-  title, 
-  subtitle, 
   brandTitle = "Secure Your APIs",
   brandSubtitle = "Protect your microservices with intelligent rate limiting and real-time analytics."
 }: AuthLayoutProps) {
