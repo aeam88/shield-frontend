@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   Search,
@@ -43,30 +43,28 @@ export default function LogsPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [allLogs, setAllLogs] = useState<LogEntry[]>([]);
+  const [applied, setApplied] = useState({ from: '', to: '' });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['analytics', 'logs', dateFrom, dateTo],
+  const { data, fetchNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ['analytics', 'logs', applied.from, applied.to],
     queryFn: async ({ pageParam }) => {
       const params = new URLSearchParams({ limit: '20' });
       if (pageParam) params.set('cursor', pageParam);
-      if (dateFrom) params.set('from', dateFrom);
-      if (dateTo) params.set('to', dateTo);
+      if (applied.from) params.set('from', applied.from);
+      if (applied.to) params.set('to', applied.to);
       return api.get<LogsResponse>(`/analytics/logs?${params.toString()}`);
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 
-  React.useEffect(() => {
-    if (data) {
-      const logs = data.pages.flatMap((page) => page.data);
-      setAllLogs(logs);
-    }
-  }, [data]);
+  const allLogs = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data],
+  );
 
   const handleDateFilter = () => {
-    setAllLogs([]);
+    setApplied({ from: dateFrom, to: dateTo });
   };
 
   const filteredLogs = allLogs.filter(log =>
@@ -169,7 +167,7 @@ export default function LogsPage() {
             </button>
             {(dateFrom || dateTo) && (
               <button
-                onClick={() => { setDateFrom(''); setDateTo(''); }}
+                onClick={() => { setDateFrom(''); setDateTo(''); setApplied({ from: '', to: '' }); }}
                 className="text-dark-500 hover:text-white px-2 py-2 text-sm transition-colors"
               >
                 Clear

@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -32,7 +32,19 @@ export function Sidebar() {
     ? Math.round((remaining / limit) * 100)
     : null;
 
-  const retryAfter = reset ? Math.max(0, Math.ceil((reset * 1000 - Date.now()) / 1000)) : null;
+  const [retryAfter, setRetryAfter] = useState<number | null>(() =>
+    reset ? Math.max(0, Math.ceil((reset * 1000 - Date.now()) / 1000)) : null,
+  );
+
+  useEffect(() => {
+    if (!reset) return;
+    const id = setInterval(() => {
+      setRetryAfter(Math.max(0, Math.ceil((reset * 1000 - Date.now()) / 1000)));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [reset]);
+
+  const showRetry = reset ? retryAfter : null;
 
   return (
     <aside className="w-64 border-r border-dark-800 bg-dark-950/50 backdrop-blur-xl flex flex-col h-screen sticky top-0">
@@ -84,9 +96,9 @@ export function Sidebar() {
                   style={{ width: `${rateLimitPercentage}%` }}
                 />
               </div>
-              {retryAfter && (
+              {showRetry !== null && (
                 <p className="text-[10px] text-yellow-500 mt-1">
-                  Retry in {retryAfter}s
+                  Retry in {showRetry}s
                 </p>
               )}
             </div>
