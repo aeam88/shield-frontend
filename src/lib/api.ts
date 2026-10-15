@@ -1,5 +1,10 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+export type OAuthProvider = 'google' | 'github';
+
+export const getOAuthUrl = (provider: OAuthProvider) =>
+  `${API_BASE_URL}/auth/oauth/${provider}`;
+
 class ApiError extends Error {
   constructor(public status: number, message: string, public data?: unknown) {
     super(message);
