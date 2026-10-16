@@ -17,7 +17,7 @@ export function SocialButtons() {
     setLoading(provider);
     start('authenticating');
     try {
-      await warmUpBackend();
+      await warmUpBackend(true);
     } catch {
       // Warm-up failures are surfaced through getBackendWarmupState below.
     }
