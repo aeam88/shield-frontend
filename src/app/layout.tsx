@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { BackendWarmup } from "@/components/BackendWarmup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +13,15 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+let apiOrigin = apiUrl;
+try {
+  apiOrigin = new URL(apiUrl).origin;
+} catch {
+  apiOrigin = apiUrl;
+}
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://shield.dev";
 
@@ -77,7 +87,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href={apiOrigin} />
         <Providers>
+          <BackendWarmup />
           {children}
         </Providers>
       </body>

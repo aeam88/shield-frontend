@@ -51,7 +51,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
     setTokens(response.access_token, response.refresh_token);
     setUser(response.user);
-    router.push('/dashboard');
   };
 
   const register = async (name: string, email: string, password: string) => {
@@ -70,7 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
     setTokens(response.access_token, response.refresh_token);
     setUser(response.user);
-    router.push('/dashboard');
   };
 
   const logout = async () => {

@@ -1,0 +1,22 @@
+name: Keep backend awake
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_URL: ${{ vars.BACKEND_URL || 'https://rate-limit-api-c311.onrender.com' }}
+    steps:
+      - name: Ping backend root endpoint
+        run: |
+          echo "Pinging $BACKEND_URL/"
+          curl -fsS -m 120 "$BACKEND_URL/" > /dev/null
+          echo "Backend responded."

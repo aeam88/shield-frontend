@@ -1,14 +1,42 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+const DEFAULT_TIMEOUT_MS = 90_000;
+
 export type OAuthProvider = 'google' | 'github';
 
 export const getOAuthUrl = (provider: OAuthProvider) =>
   `${API_BASE_URL}/auth/oauth/${provider}`;
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(public status: number, message: string, public data?: unknown) {
     super(message);
     this.name = 'ApiError';
+  }
+}
+
+export function isRetryableError(error: unknown): boolean {
+  if (error instanceof ApiError) {
+    return error.status === 0 || error.status >= 500;
+  }
+  return true;
+}
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new ApiError(0, 'The server is taking too long to respond. Please try again.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -30,7 +58,7 @@ async function refreshAccessToken(): Promise<string> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) throw new Error('No refresh token');
 
-  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh_token: refreshToken }),
@@ -54,7 +82,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}, isRetry =
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
   });
@@ -65,7 +93,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}, isRetry =
         failedQueue.push({ resolve, reject });
       }).then((newToken) => {
         headers.set('Authorization', `Bearer ${newToken}`);
-        return fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers })
+        return fetchWithTimeout(`${API_BASE_URL}${endpoint}`, { ...options, headers })
           .then((res) => res.json());
       }) as Promise<T>;
     }
@@ -76,7 +104,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}, isRetry =
       const newToken = await refreshAccessToken();
       processQueue(null, newToken);
       headers.set('Authorization', `Bearer ${newToken}`);
-      const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+      const retryResponse = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, { ...options, headers });
 
       if (!retryResponse.ok) {
         let errorData;

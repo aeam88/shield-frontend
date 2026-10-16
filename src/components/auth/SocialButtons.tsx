@@ -3,15 +3,29 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useAuthTransition } from '@/lib/transition-context';
+import { getBackendWarmupState, warmUpBackend } from '@/lib/useBackendWarmup';
 import type { OAuthProvider } from '@/lib/api';
 
 export function SocialButtons() {
   const { loginWithProvider } = useAuth();
+  const { start, fail } = useAuthTransition();
   const [loading, setLoading] = useState<OAuthProvider | null>(null);
 
-  const handleClick = (provider: OAuthProvider) => {
+  const handleClick = async (provider: OAuthProvider) => {
     if (loading) return;
     setLoading(provider);
+    start('authenticating');
+    try {
+      await warmUpBackend();
+    } catch {
+      // Warm-up failures are surfaced through getBackendWarmupState below.
+    }
+    if (getBackendWarmupState().status === 'error') {
+      setLoading(null);
+      fail('We could not wake up the server. Please try again.', () => handleClick(provider));
+      return;
+    }
     loginWithProvider(provider);
   };
 

@@ -2,7 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
+import { isRetryableError } from '@/lib/api';
+import { useAuthTransition } from '@/lib/transition-context';
+import { prefetchDashboard } from '@/lib/prefetchDashboard';
 import { Loader2, Mail, Lock } from 'lucide-react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { SocialButtons } from '@/components/auth/SocialButtons';
@@ -14,6 +19,9 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const { start, setPhase, fail, end } = useAuthTransition();
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   const validate = () => {
     const result = loginSchema.safeParse(form);
@@ -30,18 +38,33 @@ export default function LoginPage() {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const doLogin = async () => {
     setIsLoading(true);
     setError('');
+    start('authenticating');
     try {
       await login(form.email, form.password);
+      setPhase('loading-profile');
+      await prefetchDashboard(queryClient);
+      setPhase('redirecting');
+      router.push('/dashboard');
     } catch (err) {
-      setError((err as Error).message || 'Invalid credentials');
+      const message = (err as Error).message || 'Invalid credentials';
+      if (isRetryableError(err)) {
+        fail(message, doLogin);
+      } else {
+        end();
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isLoading || !validate()) return;
+    doLogin();
   };
 
   return (

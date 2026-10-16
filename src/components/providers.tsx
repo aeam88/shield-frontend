@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { MotionConfig } from 'framer-motion';
 import { AuthProvider } from '@/lib/auth-context';
+import { AuthTransitionProvider } from '@/lib/transition-context';
+import { LoadingScreen } from '@/components/LoadingScreen';
 import { Toaster } from 'sonner';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -20,8 +22,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <MotionConfig reducedMotion="user">{children}</MotionConfig>
-        <Toaster richColors position="top-right" />
+        <AuthTransitionProvider>
+          <MotionConfig reducedMotion="user">{children}</MotionConfig>
+          <LoadingScreen />
+          <Toaster richColors position="top-right" />
+        </AuthTransitionProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
