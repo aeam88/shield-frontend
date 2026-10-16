@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Shield } from 'lucide-react';
-import { BackendWarmupPill } from '@/components/BackendWarmupPill';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -19,7 +18,6 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   return (
     <div className="min-h-screen flex bg-dark-950">
-      <BackendWarmupPill />
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-dark-900 via-dark-800 to-dark-950" />
         <div className="absolute inset-0 bg-primary/5" />
