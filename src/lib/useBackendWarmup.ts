@@ -10,6 +10,7 @@ const COLD_THRESHOLD_MS = 3_000;
 const RETRY_DELAY_MS = 1_500;
 const MAX_RETRIES = 2;
 const TICK_MS = 500;
+const READY_TTL_MS = 4 * 60 * 1000;
 
 export type BackendStatus = 'idle' | 'warming' | 'ready' | 'error';
 
@@ -31,6 +32,7 @@ const initialState: BackendWarmupState = {
 
 let state: BackendWarmupState = initialState;
 let inFlight: Promise<void> | null = null;
+let readyAt = 0;
 const listeners = new Set<(snapshot: BackendWarmupState) => void>();
 
 function setState(patch: Partial<BackendWarmupState>) {
@@ -62,8 +64,11 @@ async function ping(): Promise<number> {
   }
 }
 
-export function warmUpBackend(force = false): Promise<void> {  if (inFlight && !force) return inFlight;
-  if (state.status === 'ready' && !force) return Promise.resolve();
+export function warmUpBackend(force = false): Promise<void> {
+  if (inFlight) return inFlight;
+  if (state.status === 'ready' && !force && Date.now() - readyAt < READY_TTL_MS) {
+    return Promise.resolve();
+  }
 
   inFlight = (async () => {
     const startedAt = Date.now();
@@ -81,6 +86,7 @@ export function warmUpBackend(force = false): Promise<void> {  if (inFlight && !
 
         try {
           const duration = await ping();
+          readyAt = Date.now();
           setState({
             status: 'ready',
             isColdStart: duration >= COLD_THRESHOLD_MS,
