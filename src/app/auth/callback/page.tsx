@@ -2,30 +2,52 @@
 
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { useAuth } from '@/lib/auth-context';
+import { isRetryableError } from '@/lib/api';
+import { useAuthTransition } from '@/lib/transition-context';
+import { prefetchDashboard } from '@/lib/prefetchDashboard';
 
 function CallbackContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { exchangeOAuthCode } = useAuth();
+  const { start, setPhase, fail, end } = useAuthTransition();
   const [error, setError] = useState('');
-  const processed = useRef(false);
+  const [attempt, setAttempt] = useState(0);
+  const lastRun = useRef(-1);
 
   const oauthError = searchParams.get('error');
   const code = searchParams.get('code');
 
   useEffect(() => {
-    if (processed.current || !code || oauthError) return;
-    processed.current = true;
+    if (!code || oauthError) return;
+    if (lastRun.current === attempt) return;
+    lastRun.current = attempt;
 
-    exchangeOAuthCode(code).catch((err) => {
-      setError(
-        (err as Error).message || 'We could not complete the sign in. Please try again.',
-      );
-    });
-  }, [code, oauthError, exchangeOAuthCode]);
+    start('authenticating');
+    exchangeOAuthCode(code)
+      .then(async () => {
+        setPhase('loading-profile');
+        await prefetchDashboard(queryClient);
+        setPhase('redirecting');
+        router.push('/dashboard');
+      })
+      .catch((err) => {
+        const message =
+          (err as Error).message || 'We could not complete the sign in. Please try again.';
+        if (isRetryableError(err)) {
+          fail(message, () => setAttempt((n) => n + 1));
+        } else {
+          end();
+          setError(message);
+        }
+      });
+  }, [attempt, code, oauthError, exchangeOAuthCode, start, setPhase, end, fail, router, queryClient]);
 
   const displayError =
     error ||

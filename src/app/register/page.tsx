@@ -2,7 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth-context';
+import { isRetryableError } from '@/lib/api';
+import { useAuthTransition } from '@/lib/transition-context';
+import { prefetchDashboard } from '@/lib/prefetchDashboard';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { SocialButtons } from '@/components/auth/SocialButtons';
@@ -14,6 +19,9 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
+  const { start, setPhase, fail, end } = useAuthTransition();
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   const validate = () => {
     const result = registerSchema.safeParse(form);
@@ -30,18 +38,33 @@ export default function RegisterPage() {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const doRegister = async () => {
     setIsLoading(true);
     setError('');
+    start('authenticating');
     try {
       await register(form.name, form.email, form.password);
+      setPhase('loading-profile');
+      await prefetchDashboard(queryClient);
+      setPhase('redirecting');
+      router.push('/dashboard');
     } catch (err) {
-      setError((err as Error).message || 'Error creating account');
+      const message = (err as Error).message || 'Error creating account';
+      if (isRetryableError(err)) {
+        fail(message, doRegister);
+      } else {
+        end();
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isLoading || !validate()) return;
+    doRegister();
   };
 
   return (
